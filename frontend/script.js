@@ -3,10 +3,11 @@
  * Features: Toast Notifications, Interactive Ratings, Smart Search, 
  * Hard Bag Reset, and Confident Green Success Page.
  */
-const API_URL = "https://sura-store-api.onrender.com/api";
-const BASE_URL = "https://sura-store-api.onrender.com";
- 
-let allProducts = []; 
+// This is your LIVE Backend link
+const API_URL = "https://sura-store.onrender.com/api";
+const BASE_URL = "https://sura-store.onrender.com"; 
+
+// ... the rest of your code stays the same
 
 // --- 0. THE TOAST NOTIFICATION SYSTEM (No more alerts!) ---
 window.showToast = function(message, type = 'success') {
