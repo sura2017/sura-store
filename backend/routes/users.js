@@ -1,96 +1,110 @@
-/**
- * BACKEND SERVER - FINAL PRODUCTION VERSION
- * Optimized for Render.com & Cloudinary
- */
-
-require('dotenv').config(); 
 const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const connectDB = require('./config/db');
-
-// Initialize the App
-const app = express();
+const router = express.Router();
+const User = require('../models/User');
 
 /**
- * 1. STARTUP SECURITY CHECK
- * This helps you debug if your Render Environment Variables are missing.
+ * 1. REGISTER A NEW USER
+ * Generally used for customers. 
  */
-const requiredEnv = ['MONGO_URI', 'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
-requiredEnv.forEach(key => {
-    if (!process.env[key]) {
-        console.warn(`⚠️ WARNING: Environment variable ${key} is missing!`);
+router.post('/register', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ success: false, message: "Username already taken" });
+        }
+
+        const newUser = new User({ username, password });
+        await newUser.save();
+        res.status(201).json({ success: true, message: "User created!" });
+    } catch (err) { 
+        res.status(400).json({ success: false, message: err.message }); 
     }
 });
 
 /**
- * 2. DATABASE CONNECTION
+ * 2. LOGIN
+ * This is what your frontend/login.html now uses.
+ * It checks the database for the username and password.
  */
-connectDB();
-
-/**
- * 3. GLOBAL MIDDLEWARE
- * app.use(cors()) allows your live frontend (sura-shop.onrender.com) 
- * to communicate with this brain.
- */
-app.use(cors()); 
-app.use(express.json());
-
-/**
- * 4. STATIC FILES (Legacy Support)
- * Serves any local files if they exist, though Cloudinary is now primary.
- */
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-/**
- * 5. API ROUTES
- */
-app.use('/api/products', require('./routes/products'));
-app.use('/api/orders', require('./routes/orders'));
-app.use('/api/users', require('./routes/users'));
-
-/**
- * 6. LIVE SERVER HEALTH CHECK & BRANDING
- * Visit this link to see if your server is awake.
- */
-app.get('/', (req, res) => {
-    res.send(`
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 50px; background-color: #f8fafc; height: 100vh;">
-            <div style="background: white; display: inline-block; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
-                <h1 style="color: #10b981; margin-bottom: 10px;">🚀 EasyStore API is Live</h1>
-                <p style="color: #64748b; font-size: 1.1rem;">Product with Sura Abraham</p>
-                <div style="margin-top: 20px; padding: 10px; background: #ecfdf5; color: #065f46; border-radius: 10px; font-weight: bold;">
-                    Database Status: Connected ✅
-                </div>
-                <p style="margin-top: 20px; color: #94a3b8; font-size: 0.8rem;">Ready for secure CBE & Oromia transactions.</p>
-            </div>
-        </div>
-    `);
+router.post('/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        // Find user by username AND password
+        const user = await User.findOne({ username, password });
+        
+        if (user) {
+            // Send back the isAdmin status so the frontend can save it to localStorage
+            res.json({ 
+                success: true, 
+                isAdmin: user.isAdmin, 
+                username: user.username 
+            });
+        } else {
+            // If password doesn't match the one in MongoDB
+            res.status(401).json({ success: false, message: "Invalid username or password" });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server error during login" });
+    }
 });
 
 /**
- * 7. GLOBAL ERROR HANDLER
- * Prevents the server from crashing if a route has a bug.
+ * 3. ADMIN PASSWORD RESET (The "Master Key" Logic)
+ * Forces the admin user to have the username 'admin' and updates the password.
  */
-app.use((err, req, res, next) => {
-    console.error("🔥 SERVER ERROR:", err.stack);
-    res.status(500).json({ 
-        success: false, 
-        message: "Internal Server Error", 
-        error: err.message 
-    });
+router.post('/reset-admin-password', async (req, res) => {
+    try {
+        const { recoveryCode, newPassword } = req.body;
+
+        // 1. Verify the Master Recovery Code from your .env file
+        if (!recoveryCode || recoveryCode !== process.env.ADMIN_RECOVERY_CODE) {
+            return res.status(401).json({ 
+                success: false, 
+                message: "Unauthorized: Invalid Master Recovery Code!" 
+            });
+        }
+
+        // 2. Validate the new password
+        if (!newPassword || newPassword.length < 4) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "New password must be at least 4 characters." 
+            });
+        }
+
+        // 3. Find the admin user (specifically searching for username 'admin')
+        let admin = await User.findOne({ username: 'admin' });
+
+        if (!admin) {
+            // If the 'admin' user doesn't exist at all, we create it here
+            console.log("Creating brand new admin account...");
+            admin = new User({
+                username: 'admin',
+                password: newPassword,
+                isAdmin: true
+            });
+        } else {
+            // If the 'admin' user exists, we just update the password
+            admin.password = newPassword;
+            admin.isAdmin = true; // Ensure they have admin rights
+        }
+
+        await admin.save();
+
+        console.log("🔐 Admin password synchronized in Database successfully.");
+        res.json({ 
+            success: true, 
+            message: "Password reset successful! You can now log in with username 'admin'." 
+        });
+
+    } catch (err) {
+        console.error("Reset Error:", err);
+        res.status(500).json({ success: false, message: "Database error during reset." });
+    }
 });
 
-/**
- * 8. START SERVER
- * Render uses process.env.PORT (usually 10000). Local uses 5000.
- */
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`---------------------------------------------------`);
-    console.log(`🚀 SERVER IS LIVE ON PORT: ${PORT}`);
-    console.log(`🔗 API BASE URL: http://localhost:${PORT}/api`);
-    console.log(`☁️  IMAGE STORAGE: Cloudinary Ready`);
-    console.log(`---------------------------------------------------`);
-});
+module.exports = router;
