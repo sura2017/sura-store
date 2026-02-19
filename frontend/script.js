@@ -4,9 +4,9 @@
  * Hard Bag Reset, and Confident Green Success Page.
  */
 // This is your LIVE Backend link
+// Change these at the very top of script.js
 const API_URL = "https://sura-store.onrender.com/api";
-const BASE_URL = "https://sura-store.onrender.com"; 
-
+const BASE_URL = "https://sura-store.onrender.com";
 // ... the rest of your code stays the same
 
 // --- 0. THE TOAST NOTIFICATION SYSTEM (No more alerts!) ---
