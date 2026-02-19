@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- PROFESSIONAL SEO OPTIMIZATION -->
+    <title>EasyStore | Premium Electronics & Style by Sura</title>
+    <meta name="description" content="Discover a curated collection of premium laptops, mobile phones, and fashion at EasyStore. Secure payments through CBE and Oromia Bank. Fast, reliable delivery across Finfinnee (Addis Ababa) and all regions of Ethiopia. Quality products with Sura Abraham.">
+    <meta name="keywords" content="Ethiopia, Shopping, Lenovo, iPhone, Samsung, CBE Payment, Sura Abraham, Finfinnee, Addis Ababa, Best Tech Ethiopia, Product with Sura">
+    <meta name="author" content="Sura Abraham">
+
+    <!-- SOCIAL MEDIA PREVIEW (Telegram & WhatsApp Open Graph) -->
+    <meta property="og:title" content="EasyStore Ethiopia - Quality Products with Sura">
+    <meta property="og:description" content="Premium brand catalog with secure CBE payment. Express delivery in Finfinnee (Addis Ababa) and nationwide.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3081/3081840.png"> 
+    <meta property="og:url" content="https://your-live-link.onrender.com">
+    <meta property="og:type" content="website">
+
+    <!-- Tab Icon (Favicon) -->
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3081/3081840.png">
+
+    <!-- Premium Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Ultra-Beauty Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container"></div>
+
+    <!-- NAVIGATION BAR (Glassmorphism Style) -->
+    <nav>
+        <div class="nav-logo" onclick="location.href='index.html'">
+            <i class="fas fa-bolt"></i> <h2>EasyStore</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="cart.html" class="nav-cart">
+                <i class="fas fa-shopping-bag"></i> Bag 
+                <span id="cart-count">0</span>
+            </a>
+            <a href="admin.html"><i class="fas fa-user-shield"></i> Admin</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- SEARCH & ADVANCED FILTER SECTION -->
+        <div class="filters">
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search" placeholder="Search brands (Lenovo, iPhone, TECNO...)" onkeyup="window.filterProducts()">
+            </div>
+            
+            <div class="select-wrapper" style="position: relative; flex: 0.4; min-width: 150px;">
+                <i class="fas fa-filter" style="position: absolute; left: 15px; top: 15px; color: var(--text-muted); z-index: 5;"></i>
+                <select id="category" onchange="window.filterProducts()" style="padding-left: 40px;">
+                    <option value="All">All Categories</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Mobile">Mobile Phones</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Home">Home & Kitchen</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- MAIN PRODUCT SERIES GRID -->
+        <div id="product-list" class="grid">
+            <!-- Loading state -->
+            <div class="loading-state" style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px;"></i>
+                <p style="font-weight: 600; color: var(--text-muted);">Fetching the finest models for you...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CATALOG SERIES MODAL (The Mini-Store Pop-up) -->
+    <div id="variant-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="window.closeModal()">
+                <i class="fas fa-times-circle"></i>
+            </span>
+            <div id="modal-body">
+                <!-- script.js dynamically injects brand catalog here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PREMIUM FOOTER & ABOUT SECTION -->
+    <footer style="margin-top: 80px; padding: 60px 10% 30px; background: var(--white); border-top: 1px solid var(--border); text-align: left;">
+        <div class="footer-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px;">
+            
+            <!-- EasyStore Info -->
+            <div>
+                <h2 style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; margin-bottom: 15px;">EasyStore</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                    Ethiopia's rising destination for premium technology and style. We connect you with verified brand series and local payment convenience.
+                </p>
+            </div>
+
+            <!-- About Me (Product with Sura) -->
+            <div>
+                <h4 style="margin-bottom: 15px; font-weight: 700; color: var(--dark);">Product with Sura</h4>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border); border-left: 5px solid var(--primary);">
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-main); font-weight: 600; font-style: italic;">
+                        <i class="fas fa-quote-left" style="color: var(--primary); margin-right: 5px;"></i> 
+                        I believe in quality over quantity. Every series in this catalog is hand-verified to ensure you get the best tech in Ethiopia.
+                    </p>
+                    <p style="margin-top: 12px; font-size: 0.8rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">— SURA ABRAHAM</p>
+                </div>
+            </div>
+
+            <!-- Service Locations -->
+            <div>
+                <h4 style="margin-bottom: 15px; font-weight: 700; color: var(--dark);">Our Reach</h4>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> Express: Finfinnee (Addis Ababa)
+                </p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-globe-africa" style="color: var(--primary);"></i> Standard: All regions of Ethiopia
+                </p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-credit-card" style="color: var(--primary);"></i> CBE / Oromia / Cooperative Bank
+                </p>
+            </div>
+        </div>
+        
+        <!-- Bottom Copyright -->
+        <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.75rem;">
+            &copy; 2024 EasyStore Ethiopia. All rights reserved. <br>
+            Designed & Developed by <b>Sura Abraham</b>
+        </div>
+    </footer>
+
+    <!-- CORE SCRIPTS -->
+    <script src="script.js"></script>
+    <script>
+        // Start essential functions when the page loads
+        window.onload = () => {
+            if (typeof fetchProducts === 'function') {
+                fetchProducts(); 
+            }
+            if (typeof updateCartCount === 'function') {
+                updateCartCount(); 
+            }
+        };
+
+        // Modal backdrop close logic
+        window.onclick = function(event) {
+            const modal = document.getElementById('variant-modal');
+            if (event.target == modal) {
+                window.closeModal();
+            }
+        };
+    </script>
+</body>
+</html>

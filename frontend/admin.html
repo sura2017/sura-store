@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO Optimization -->
+<meta name="description" content="EasyStore - Best electronics and fashion in Ethiopia. Pay via CBE, Oromia, and Coop Bank.">
+<meta name="keywords" content="Ethiopia, Shopping, Lenovo, iPhone, CBE, Sura Abraham">
+
+<!-- Tab Icon (Replace with your logo link) -->
+<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3081/3081840.png">
+    <title>Admin Dashboard | EasyStore Control</title>
+    
+    <!-- FontAwesome for professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Premium Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* Specific Admin Dashboard Tweaks */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 10px; }
+        .divider { border: 0; height: 1px; background: #e2e8f0; margin: 3rem 0; }
+        .section-title { margin-bottom: 1.5rem; font-weight: 800; color: var(--dark); border-left: 5px solid var(--primary); padding-left: 15px; }
+        .save-btn { background: var(--primary-gradient) !important; margin-top: 1rem; color: white; border: none; font-size: 1.1rem; height: 50px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: 700;}
+        .admin-list-container { display: flex; flex-direction: column; gap: 1rem; }
+        label { font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: block; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .small-btn { background: var(--dark); color: white; border: none; border-radius: 8px; padding: 8px 15px; cursor: pointer; font-size: 0.75rem; transition: 0.3s; }
+        .small-btn:hover { background: var(--primary); }
+        textarea { resize: vertical; min-height: 100px; padding: 15px !important; }
+        
+        .json-info { background: #fffbeb; border: 1px solid #fef3c7; padding: 12px; border-radius: 12px; font-size: 0.8rem; color: #92400e; margin-bottom: 15px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container"></div>
+    
+    <!-- ADMIN NAVIGATION -->
+    <nav>
+        <div class="nav-logo" onclick="location.href='index.html'">
+            <i class="fas fa-user-shield"></i> <h2>Admin Control</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html"><i class="fas fa-eye"></i> View Store</a>
+            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- SECTION 1: ADD ADVANCED PRODUCT SERIES -->
+        <div class="card admin-form-card" style="max-width: 850px; margin: auto; padding: 30px;">
+            <h3 style="margin-top: 0;"><i class="fas fa-plus-circle"></i> Create New Product Series</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 25px;">
+                Group multiple models under one Brand (e.g. Create a "Lenovo ThinkPad" series with 3 models).
+            </p>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Series Name</label>
+                    <input type="text" id="pName" placeholder="e.g. Pavilion Series" style="padding-left: 15px;">
+                </div>
+                <div class="form-group">
+                    <label>Brand Name</label>
+                    <input type="text" id="pBrand" placeholder="e.g. HP" style="padding-left: 15px;">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="pCat" style="padding-left: 15px;">
+                        <option value="Electronics">Electronics</option>
+                        <option value="Mobile">Mobile Phones</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Home">Home & Kitchen</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Rating (1.0 - 5.0)</label>
+                    <input type="number" id="pRating" placeholder="4.8" step="0.1" min="1" max="5" style="padding-left: 15px;">
+                </div>
+                <div class="form-group">
+                    <label>Initial Sales Count</label>
+                    <input type="number" id="pBought" placeholder="e.g. 150" style="padding-left: 15px;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Series Description (About this Item)</label>
+                <textarea id="pAbout" placeholder="Briefly describe what makes this series special..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <label>Models Catalog (JSON Data)</label>
+                    <button type="button" onclick="loadCatalogTemplate()" class="small-btn">
+                        <i class="fas fa-layer-group"></i> Load 3-Model Template
+                    </button>
+                </div>
+                <div class="json-info">
+                    <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Click the template button. Replace only the <code>optionName</code>, <code>price</code>, and <code>image</code> URL. Ensure you keep the quotes <code>""</code> and brackets <code>[]</code>.
+                </div>
+                <textarea id="pVariants" placeholder='Paste Model JSON here...' style="height:220px; font-family: 'Courier New', monospace; font-size: 0.8rem; background: #fafafa; border: 1px solid #cbd5e1;"></textarea>
+                <small style="color: var(--danger); font-size: 0.7rem;">* Warning: Incorrect JSON formatting will prevent publication.</small>
+            </div>
+            
+            <button onclick="saveAdvancedProduct()" id="publishBtn" class="save-btn">
+                <i class="fas fa-cloud-upload-alt"></i> Publish Series to Store
+            </button>
+        </div>
+
+        <hr class="divider">
+
+        <!-- SECTION 2: INCOMING ORDERS -->
+        <h3 class="section-title"><i class="fas fa-receipt"></i> Customer Orders & Bank Receipts</h3>
+        <div id="admin-orders" class="admin-list-container">
+            <div class="card" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                <i class="fas fa-circle-notch fa-spin"></i> Checking for new orders...
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- SECTION 3: INVENTORY MANAGEMENT -->
+        <h3 class="section-title"><i class="fas fa-boxes"></i> Series Inventory Control</h3>
+        <div id="admin-product-list" class="grid">
+            <div class="card" style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 40px;">
+                <i class="fas fa-circle-notch fa-spin"></i> Loading product database...
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CORE SCRIPTS -->
+    <script src="script.js"></script>
+    <script>
+        // 1. Authentication Security
+        if(localStorage.getItem('isAdmin') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('isAdmin');
+            window.location.href = 'login.html';
+        }
+
+        // 2. Initial Data Load from script.js
+        window.onload = () => {
+            if (typeof fetchAdminData === 'function') {
+                fetchAdminData();
+            }
+        };
+
+        // 3. Helper: JSON Template for Multiple Models
+        function loadCatalogTemplate() {
+            const template = [
+                { 
+                    "optionName": "Entry Model", 
+                    "price": 499, 
+                    "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500",
+                    "description": "Standard specs, affordable price."
+                },
+                { 
+                    "optionName": "Professional Model", 
+                    "price": 899, 
+                    "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500",
+                    "description": "Upgraded performance for work."
+                },
+                { 
+                    "optionName": "Flagship Model", 
+                    "price": 1299, 
+                    "image": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=500",
+                    "description": "The best technology available."
+                }
+            ];
+            document.getElementById('pVariants').value = JSON.stringify(template, null, 2);
+            showToast("Template loaded. Update the details.", "warning");
+        }
+
+        // 4. Save Logic for Series
+        async function saveAdvancedProduct() {
+            const name = document.getElementById('pName').value;
+            const brand = document.getElementById('pBrand').value;
+            const category = document.getElementById('pCat').value;
+            const rating = document.getElementById('pRating').value;
+            const boughtLastMonth = document.getElementById('pBought').value;
+            const about = document.getElementById('pAbout').value;
+            const variantsText = document.getElementById('pVariants').value;
+            const publishBtn = document.getElementById('publishBtn');
+
+            if(!name || !brand || !variantsText || !about) {
+                return showToast("⚠️ Fill all fields before publishing!", "warning");
+            }
+
+            // UI Loading State
+            publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+            publishBtn.disabled = true;
+
+            try {
+                const variantsArray = JSON.parse(variantsText);
+                
+                const data = {
+                    name,
+                    brand,
+                    category,
+                    rating: parseFloat(rating) || 0,
+                    boughtLastMonth: parseInt(boughtLastMonth) || 0,
+                    about,
+                    variants: variantsArray
+                };
+
+                const res = await fetch('http://localhost:5000/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if(res.ok) { 
+                    showToast("🚀 Success! Brand Series is now live.", "success"); 
+                    setTimeout(() => { location.reload(); }, 1500);
+                } else {
+                    const errResponse = await res.json();
+                    showToast("❌ Server Error: " + (errResponse.message || "Save failed."), "error");
+                    publishBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publish Series to Store';
+                    publishBtn.disabled = false;
+                }
+
+            } catch (e) {
+                showToast("❌ JSON Format Error! Check your quotes and commas.", "error");
+                publishBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publish Series to Store';
+                publishBtn.disabled = false;
+                console.error("Parsing error:", e);
+            }
+        }
+    </script>
+</body>
+</html>

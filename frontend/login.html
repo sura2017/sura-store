@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | EasyStore</title>
+    
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Link to your Premium CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .login-container {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            text-align: center;
+            border-radius: 32px;
+            background: var(--white);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+        }
+        .login-icon {
+            font-size: 3.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        .forgot-link {
+            display: block;
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .forgot-link:hover { color: var(--primary); }
+        
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            display: block;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOAST NOTIFICATION CONTAINER (The Fix for Popups) -->
+    <div id="toast-container"></div>
+
+    <!-- NAVIGATION BAR -->
+    <nav>
+        <div class="nav-logo" onclick="location.href='index.html'">
+            <i class="fas fa-bolt"></i> <h2>EasyStore</h2>
+        </div>
+        <a href="index.html" style="color:var(--text-muted); text-decoration:none; font-weight:600;">
+            <i class="fas fa-arrow-left"></i> Back to Store
+        </a>
+    </nav>
+
+    <div class="container login-container">
+        <div class="card login-card">
+            <div class="login-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            
+            <h2 style="margin-bottom: 10px; font-weight: 800; color: var(--dark);">Admin Access</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px;">
+                Enter your password to verify your identity.
+            </p>
+
+            <!-- PASSWORD INPUT -->
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="search-wrapper" style="position: relative; display: flex; align-items: center;">
+                    <i class="fas fa-key" style="position: absolute; left: 15px; color: var(--text-muted);"></i>
+                    <input type="password" id="adminPass" placeholder="Enter your secure password" style="padding-left: 45px; width: 100%;">
+                </div>
+            </div>
+
+            <!-- LOGIN BUTTON -->
+            <button onclick="login()" id="loginBtn" style="background: var(--primary-gradient); height: 55px; margin-top: 15px; border: none; width: 100%; border-radius: 16px; color: white; font-weight: 700; cursor: pointer;">
+                <i class="fas fa-sign-in-alt"></i> Secure Login
+            </button>
+
+            <!-- FORGOT PASSWORD LINK -->
+            <a href="forgot-password.html" class="forgot-link">
+                <i class="fas fa-unlock-alt"></i> Forgot Password? Use Master Key
+            </a>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * TOAST NOTIFICATION SYSTEM
+         */
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = 'fa-check-circle';
+            if(type === 'error') icon = 'fa-times-circle';
+            if(type === 'warning') icon = 'fa-exclamation-triangle';
+
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        /**
+         * SECURE LOGIN LOGIC
+         */
+        async function login() {
+            const passField = document.getElementById('adminPass');
+            const loginBtn = document.getElementById('loginBtn');
+            const password = passField.value;
+
+            if (!password) {
+                return showToast("⚠️ Please enter your password.", "warning");
+            }
+
+            // Show loading state on button
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            loginBtn.disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/users/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: 'admin', 
+                        password: password 
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success && result.isAdmin) {
+                    // Success Path
+                    localStorage.setItem('isAdmin', 'true');
+                    showToast("✅ Login Successful! Welcome, Sura.", "success");
+                    
+                    // Redirect after a short delay so they can see the success toast
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1500);
+                } else { 
+                    // Error Path (Wrong password)
+                    showToast("❌ " + (result.message || "Incorrect password."), "error"); 
+                    passField.value = ""; 
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Secure Login';
+                    loginBtn.disabled = false;
+                }
+            } catch (err) {
+                // Connection Error (Backend offline)
+                console.error("Login Error:", err);
+                showToast("❌ Server Connection Failed! Is the terminal running?", "error");
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Secure Login';
+                loginBtn.disabled = false;
+            }
+        }
+
+        // Allow pressing "Enter" key to login
+        document.getElementById('adminPass').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+    </script>
+</body>
+</html>

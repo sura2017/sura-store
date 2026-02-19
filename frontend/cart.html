@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO Optimization -->
+<meta name="description" content="EasyStore - Best electronics and fashion in Ethiopia. Pay via CBE, Oromia, and Coop Bank.">
+<meta name="keywords" content="Ethiopia, Shopping, Lenovo, iPhone, CBE, Sura Abraham">
+
+<!-- Tab Icon (Replace with your logo link) -->
+<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3081/3081840.png">
+    <title>Secure Checkout | EasyStore</title>
+    
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Link to your Premium CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container"></div>
+    
+    <!-- NAVIGATION BAR -->
+    <nav>
+        <div class="nav-logo" onclick="location.href='index.html'">
+            <i class="fas fa-bolt"></i> <h2>EasyStore</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" style="color:var(--text-muted); text-decoration:none; font-weight:600;">
+                <i class="fas fa-arrow-left"></i> Back to Shopping
+            </a>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 850px;">
+        <!-- PAGE HEADER -->
+        <div id="page-header">
+            <h1 style="font-size: 1.8rem; margin-bottom: 1.5rem; text-align: left;">
+                <i class="fas fa-shopping-bag" style="color: var(--primary);"></i> Review Your Bag
+            </h1>
+        </div>
+
+        <!-- MAIN CONTENT AREA -->
+        <!-- Logic: script.js will fill this with items OR the Green Success Card -->
+        <div id="cart-items" class="bag-items-wrapper">
+            <div class="card" style="padding: 40px; text-align: center;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
+                <p>Loading your bag...</p>
+            </div>
+        </div>
+        
+        <!-- CHECKOUT BOX (Hidden by default, shown when items are present) -->
+        <div id="checkout-box" style="display:none; margin-top: 2rem;" class="card checkout-card">
+            
+            <!-- BANK DETAILS AREA -->
+            <div class="bank-info">
+                <h4><i class="fas fa-university"></i> Payment Instructions</h4>
+                <div style="margin: 15px 0;">
+                    <p><span>Commercial Bank (CBE):</span> <strong>1000431886026</strong></p>
+                    <p><span>Account Holder:</span> <strong>Sura Abraham</strong></p>
+                </div>
+                
+                <div class="info-alert" style="background: #fffbeb; padding: 15px; border-radius: 12px; border: 1px solid #fef3c7; color: #92400e; font-size: 0.85rem; line-height: 1.5;">
+                    <i class="fas fa-info-circle"></i> <strong>Confidential Step:</strong> <br>
+                    1. Transfer the total amount to <b>Sura Abraham</b> via your bank app. <br>
+                    2. Take a clear <b>screenshot</b> of the success message. <br>
+                    3. Fill in your delivery details below and upload that screenshot.
+                </div>
+            </div>
+
+            <!-- TOTAL PRICE -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 25px 0; padding: 15px; background: #f8fafc; border-radius: 15px;">
+                <h3 style="margin:0; font-weight: 700;">Total to Pay:</h3>
+                <h3 style="margin:0; color: var(--primary); font-size: 1.8rem;">$<span id="total-price">0</span></h3>
+            </div>
+            
+            <!-- DELIVERY FORM -->
+            <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                <label><i class="fas fa-user"></i> Full Name</label>
+                <div class="search-wrapper" style="position: relative; display: flex; align-items: center;">
+                    <i class="fas fa-user" style="position: absolute; left: 15px; color: var(--text-muted);"></i>
+                    <input type="text" id="custName" placeholder="Recipient's Name" required style="padding-left: 45px; width: 100%;">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                <label><i class="fas fa-phone"></i> Contact Phone Number</label>
+                <div class="search-wrapper" style="position: relative; display: flex; align-items: center;">
+                    <i class="fas fa-phone" style="position: absolute; left: 15px; color: var(--text-muted);"></i>
+                    <input type="text" id="custPhone" placeholder="09... (We will call this number)" required style="padding-left: 45px; width: 100%;">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                <label><i class="fas fa-map-marker-alt"></i> Delivery Address</label>
+                <div class="search-wrapper" style="position: relative; display: flex; align-items: center;">
+                    <i class="fas fa-map-marker-alt" style="position: absolute; left: 15px; color: var(--text-muted);"></i>
+                    <input type="text" id="custAddr" placeholder="Sub-city, District, House No." required style="padding-left: 45px; width: 100%;">
+                </div>
+            </div>
+            
+            <!-- SCREENSHOT UPLOAD -->
+            <div class="form-group" style="margin-top: 25px; text-align: left;">
+                <label style="color: var(--text-main); font-weight: 700; margin-bottom: 10px; display: block;">
+                    <i class="fas fa-camera"></i> Upload CBE / Bank Receipt
+                </label>
+                <input type="file" id="payScreenshot" accept="image/*" required 
+                       style="background: #f8fafc; border: 2px dashed var(--border); padding: 25px; text-align: center; cursor: pointer; width: 100%; border-radius: 15px;">
+                <small style="display: block; margin-top: 8px; color: var(--text-muted);">Maximum size: 5MB (Image files only)</small>
+            </div>
+            
+            <!-- SUBMIT BUTTON -->
+            <button onclick="window.placeOrderWithScreenshot()" id="confirmBtn" style="background: var(--primary-gradient); margin-top: 2rem; height: 60px; font-size: 1.15rem; width: 100%; border: none; border-radius: 16px; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);">
+                <i class="fas fa-check-circle"></i> Confirm & Submit Order
+            </button>
+        </div>
+    </div>
+
+    <!-- SCRIPT LINK -->
+    <script src="script.js"></script>
+    <script>
+        // Start everything when the page opens
+        window.onload = () => { 
+            if (typeof displayCart === 'function') {
+                displayCart(); 
+            }
+            if (typeof updateCartCount === 'function') {
+                updateCartCount(); 
+            }
+        };
+    </script>
+</body>
+</html>
