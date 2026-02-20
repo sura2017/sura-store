@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- SEO Optimization -->
-<meta name="description" content="EasyStore - Best electronics and fashion in Ethiopia. Pay via CBE, Oromia, and Coop Bank.">
-<meta name="keywords" content="Ethiopia, Shopping, Lenovo, iPhone, CBE, Sura Abraham">
-
-<!-- Tab Icon (Replace with your logo link) -->
-<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3081/3081840.png">
+    
+    <!-- SEO & Favicon -->
+    <meta name="description" content="EasyStore Admin - Product with Sura">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3081/3081840.png">
     <title>Admin Dashboard | EasyStore Control</title>
     
-    <!-- FontAwesome for professional icons -->
+    <!-- FontAwesome & Premium Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Premium Style Sheet -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     
     <style>
-        /* Specific Admin Dashboard Tweaks */
+        /* Specific Admin Dashboard Enhancements */
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 10px; }
         .divider { border: 0; height: 1px; background: #e2e8f0; margin: 3rem 0; }
         .section-title { margin-bottom: 1.5rem; font-weight: 800; color: var(--dark); border-left: 5px solid var(--primary); padding-left: 15px; }
@@ -27,7 +25,7 @@
         .form-group { margin-bottom: 15px; text-align: left; }
         .small-btn { background: var(--dark); color: white; border: none; border-radius: 8px; padding: 8px 15px; cursor: pointer; font-size: 0.75rem; transition: 0.3s; }
         .small-btn:hover { background: var(--primary); }
-        textarea { resize: vertical; min-height: 100px; padding: 15px !important; }
+        textarea { resize: vertical; min-height: 100px; padding: 15px !important; border-radius: 12px; border: 1px solid #cbd5e1; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem;}
         
         .json-info { background: #fffbeb; border: 1px solid #fef3c7; padding: 12px; border-radius: 12px; font-size: 0.8rem; color: #92400e; margin-bottom: 15px; line-height: 1.4; }
     </style>
@@ -101,9 +99,9 @@
                     </button>
                 </div>
                 <div class="json-info">
-                    <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Click the template button. Replace only the <code>optionName</code>, <code>price</code>, and <code>image</code> URL. Ensure you keep the quotes <code>""</code> and brackets <code>[]</code>.
+                    <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Click the template button. Replace ONLY the <code>optionName</code>, <code>price</code>, and <code>image</code> URL. Keep the <code>""</code> and <code>[]</code> exactly as they are.
                 </div>
-                <textarea id="pVariants" placeholder='Paste Model JSON here...' style="height:220px; font-family: 'Courier New', monospace; font-size: 0.8rem; background: #fafafa; border: 1px solid #cbd5e1;"></textarea>
+                <textarea id="pVariants" placeholder='Paste Model JSON here...' style="height:220px; background: #fafafa;"></textarea>
                 <small style="color: var(--danger); font-size: 0.7rem;">* Warning: Incorrect JSON formatting will prevent publication.</small>
             </div>
             
@@ -137,6 +135,25 @@
     <!-- CORE SCRIPTS -->
     <script src="script.js"></script>
     <script>
+        // Use your LIVE link
+        const LIVE_BACKEND = "https://sura-store.onrender.com/api";
+
+        // --- Standalone Toast System for Admin ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            let icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle');
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
         // 1. Authentication Security
         if(localStorage.getItem('isAdmin') !== 'true') {
             window.location.href = 'login.html';
@@ -147,14 +164,14 @@
             window.location.href = 'login.html';
         }
 
-        // 2. Initial Data Load from script.js
+        // 2. Initial Data Load
         window.onload = () => {
             if (typeof fetchAdminData === 'function') {
                 fetchAdminData();
             }
         };
 
-        // 3. Helper: JSON Template for Multiple Models
+        // 3. Helper: JSON Template
         function loadCatalogTemplate() {
             const template = [
                 { 
@@ -168,19 +185,13 @@
                     "price": 899, 
                     "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500",
                     "description": "Upgraded performance for work."
-                },
-                { 
-                    "optionName": "Flagship Model", 
-                    "price": 1299, 
-                    "image": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=500",
-                    "description": "The best technology available."
                 }
             ];
             document.getElementById('pVariants').value = JSON.stringify(template, null, 2);
-            showToast("Template loaded. Update the details.", "warning");
+            showToast("Template loaded. Edit carefully.", "warning");
         }
 
-        // 4. Save Logic for Series
+        // 4. Save Logic (The Fix for JSON Error popup)
         async function saveAdvancedProduct() {
             const name = document.getElementById('pName').value;
             const brand = document.getElementById('pBrand').value;
@@ -192,47 +203,57 @@
             const publishBtn = document.getElementById('publishBtn');
 
             if(!name || !brand || !variantsText || !about) {
-                return showToast("⚠️ Fill all fields before publishing!", "warning");
+                return showToast("⚠️ Fill all fields first!", "warning");
             }
 
-            // UI Loading State
-            publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+            // --- THE FIX: SPECIFIC JSON PARSING CHECK ---
+            let variantsArray;
+            try {
+                // We try to parse it here first. If this fails, it's definitely a JSON format error.
+                variantsArray = JSON.parse(variantsText);
+            } catch (jsonErr) {
+                console.error("JSON Error Details:", jsonErr);
+                return showToast("❌ JSON Format Error! Use double quotes and check commas.", "error");
+            }
+
+            // If we reach here, JSON is valid. Now we check the server.
+            publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting to Live Server...';
             publishBtn.disabled = true;
 
             try {
-                const variantsArray = JSON.parse(variantsText);
-                
                 const data = {
-                    name,
-                    brand,
-                    category,
+                    name, brand, category,
                     rating: parseFloat(rating) || 0,
                     boughtLastMonth: parseInt(boughtLastMonth) || 0,
                     about,
                     variants: variantsArray
                 };
 
-                const res = await fetch('http://localhost:5000/api/products', {
+                const res = await fetch(`${LIVE_BACKEND}/products`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
                 if(res.ok) { 
-                    showToast("🚀 Success! Brand Series is now live.", "success"); 
+                    showToast("🚀 Success! Series is now live.", "success"); 
                     setTimeout(() => { location.reload(); }, 1500);
                 } else {
                     const errResponse = await res.json();
-                    showToast("❌ Server Error: " + (errResponse.message || "Save failed."), "error");
-                    publishBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publish Series to Store';
+                    showToast("❌ Server Refused: " + (errResponse.message || "Invalid Data"), "error");
+                    publishBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publish Series';
                     publishBtn.disabled = false;
                 }
 
-            } catch (e) {
-                showToast("❌ JSON Format Error! Check your quotes and commas.", "error");
-                publishBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publish Series to Store';
+            } catch (connErr) {
+                console.error("Connection Error:", connErr);
+                showToast("❌ Server Offline. Waking it up...", "error");
+                
+                // Wake up backend
+                window.open("https://sura-store.onrender.com", "_blank");
+                
+                publishBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publish Series';
                 publishBtn.disabled = false;
-                console.error("Parsing error:", e);
             }
         }
     </script>
