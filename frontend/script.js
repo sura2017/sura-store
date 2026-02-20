@@ -1,15 +1,15 @@
 /**
  * ABSOLUTE FINAL PROFESSIONAL FRONTEND SCRIPT
- * Features: Toast Notifications, Interactive Ratings, Smart Search, 
+ * Integrated Features: Toast Notifications, Interactive Ratings, Smart Search, 
  * Hard Bag Reset, and Confident Green Success Page.
  */
-// This is your LIVE Backend link
-// Change these at the very top of script.js
-const API_URL = "https://sura-store.onrender.com/api";
-const BASE_URL = "https://sura-store.onrender.com";
-// ... the rest of your code stays the same
 
-// --- 0. THE TOAST NOTIFICATION SYSTEM (No more alerts!) ---
+// Deployment URL - Points to your live Render Backend
+const API_URL = "https://sura-store.onrender.com/api";
+const BASE_URL = "https://sura-store.onrender.com"; 
+let allProducts = []; 
+
+// --- 0. THE TOAST NOTIFICATION SYSTEM (No more browser alerts!) ---
 window.showToast = function(message, type = 'success') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -36,7 +36,7 @@ async function fetchProducts() {
     const list = document.getElementById('product-list');
     try {
         const res = await fetch(`${API_URL}/products`);
-        if (!res.ok) throw new Error("Server connection error");
+        if (!res.ok) throw new Error("Database connection error");
         allProducts = await res.json();
         renderProducts(allProducts);
     } catch (err) {
@@ -44,10 +44,10 @@ async function fetchProducts() {
             list.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
                     <i class="fas fa-mug-hot fa-spin" style="font-size: 3rem; color: var(--primary);"></i>
-                    <h3 style="margin-top:20px;">Waking up the store...</h3>
-                    <p style="color:var(--text-muted);">Please wait 30 seconds for the server to start.</p>
+                    <h3 style="margin-top:20px;">Server is waking up...</h3>
+                    <p style="color:var(--text-muted);">Please wait 30 seconds for the cloud database to sync.</p>
                 </div>`;
-            setTimeout(fetchProducts, 5000); // Auto-retry
+            setTimeout(fetchProducts, 5000); 
         }
     }
 }
@@ -120,7 +120,7 @@ window.openCatalogModal = function(id) {
                     <i class="far fa-star" onclick="window.submitRating('${product._id}', 4)"></i>
                     <i class="far fa-star" onclick="window.submitRating('${product._id}', 5)"></i>
                 </div>
-                <small style="color:#b45309; font-weight:600;">Current: ${product.rating} / 5.0 (${product.numRatings || 0} reviews)</small>
+                <small style="color:#b45309; font-weight:600;">Current Score: ${product.rating} / 5.0</small>
             </div>
 
             <h4 style="text-align: left; margin-bottom: 15px;">Available Models:</h4>
@@ -146,8 +146,7 @@ window.submitRating = async function(id, value) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ starValue: value })
         });
-        const result = await res.json();
-        if(result.success) {
+        if(res.ok) {
             window.showToast(`✅ Rated ${value} Stars!`, "success");
             setTimeout(() => location.reload(), 1200);
         }
@@ -161,7 +160,7 @@ window.selectModel = function(productId, variantIndex, element) {
     element.style.borderColor = "#10b981"; element.style.background = "#f0fdf4";
     const btn = document.getElementById('add-to-cart-catalog');
     btn.disabled = false; btn.style.background = "#10b981";
-    btn.innerHTML = `<i class="fas fa-cart-plus"></i> Add ${variant.optionName} to Cart`;
+    btn.innerHTML = `<i class="fas fa-cart-plus"></i> Add ${variant.optionName} to Bag`;
     btn.onclick = () => {
         const brandPrefix = product.brand ? product.brand + " " : "";
         window.addToCart(productId, `${brandPrefix}${variant.optionName}`, variant.price);
@@ -171,7 +170,7 @@ window.selectModel = function(productId, variantIndex, element) {
 
 window.closeModal = function() { document.getElementById('variant-modal').style.display = "none"; }
 
-// --- 3. SEARCH & FILTER (Smart Search) ---
+// --- 3. SEARCH & FILTER (Smart Search Logic) ---
 window.filterProducts = function() {
     const searchTerm = document.getElementById('search').value.toLowerCase();
     const cat = document.getElementById('category').value;
@@ -230,10 +229,9 @@ window.removeItem = function(index) {
     cart.splice(index, 1);
     localStorage.setItem('cart', JSON.stringify(cart));
     displayCart(); window.updateCartCount();
-    window.showToast("Item removed.", "warning");
 }
 
-// --- 5. CHECKOUT (HARD WIPE SUCCESS SCREEN) ---
+// --- 5. CHECKOUT (HARD WIPE & CONFIDENT SUCCESS TRANSFORMATION) ---
 window.placeOrderWithScreenshot = async function() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const fileInput = document.getElementById('payScreenshot');
@@ -241,8 +239,11 @@ window.placeOrderWithScreenshot = async function() {
     const phone = document.getElementById('custPhone').value;
     const addr = document.getElementById('custAddr').value;
 
+    // 1. Validation Logic
     if (cart.length === 0) return window.showToast("Your bag is empty!", "warning");
-    if (!name || !phone || !addr || !fileInput.files[0]) return window.showToast("Complete all fields!", "warning");
+    if (!name || !phone || !addr || !fileInput.files[0]) {
+        return window.showToast("Complete all fields!", "warning");
+    }
 
     const formData = new FormData();
     formData.append('order', JSON.stringify({ items: cart, total: cart.reduce((s, i) => s + i.price, 0), customer: { name, phone, address: addr } }));
@@ -253,44 +254,48 @@ window.placeOrderWithScreenshot = async function() {
         const result = await response.json();
         
         if (response.ok && result.success) {
-            // THE WIPE: Clear Bag immediately
+            // --- THE WIPE: Clear Bag and Counter immediately ---
             localStorage.setItem('cart', JSON.stringify([])); 
             window.updateCartCount();
 
-            // THE GREEN SUCCESS PAGE TRANSFORMATION
+            // --- THE TRANSFORMATION: Confident Green Success Page ---
             const container = document.getElementById('cart-items');
             if (container) {
                 container.innerHTML = `
-                    <div class="card" style="padding:60px; text-align:center; border: 3px solid #10b981; background:#f0fdf4; border-radius:32px;">
-                        <i class="fas fa-check-circle" style="font-size: 5.5rem; color: #10b981; margin-bottom: 25px;"></i>
-                        <h2 style="color: #065f46; font-size:1.8rem; margin-bottom: 10px;">${result.message}</h2>
-                        <div style="text-align:left; background:white; padding:25px; border-radius:20px; border:1px solid #d1fae5; margin-top:20px;">
-                            <h4 style="margin:0; border-bottom:1px solid #eee; padding-bottom:10px;">Delivery Confirmation</h4>
-                            <p style="margin:10px 0;"><strong>Recipient:</strong> ${name}</p>
-                            <p style="margin:10px 0;"><strong>Phone:</strong> ${phone}</p>
-                            <p style="margin:10px 0;"><strong>Deliver To:</strong> ${addr}</p>
+                    <div class="card" style="padding:60px; text-align:center; border: 3px solid #10b981; background:#f0fdf4; border-radius:32px; animation: slideIn 0.5s ease;">
+                        <i class="fas fa-check-circle" style="font-size: 6rem; color: #10b981; margin-bottom: 25px;"></i>
+                        <h2 style="color: #065f46; font-size:2rem; margin-bottom: 10px;">successfully ordered</h2>
+                        <div style="text-align:left; background:white; padding:25px; border-radius:20px; border:1px solid #d1fae5; margin: 25px auto; max-width: 500px;">
+                            <h4 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; color: var(--dark);">
+                                <i class="fas fa-truck"></i> Delivery Information
+                            </h4>
+                            <p style="margin:10px 0;"><strong>Recipient Name:</strong> ${name}</p>
+                            <p style="margin:10px 0;"><strong>Contact Phone:</strong> ${phone}</p>
+                            <p style="margin:10px 0; line-height: 1.5;"><strong>Destination:</strong> ${addr}</p>
                         </div>
-                        <p style="color: #1e293b; font-size: 0.95rem; margin-top:20px;">
-                            We are verifying your payment receipt. Our team will call you shortly to confirm the delivery time.
+                        <p style="color: #1e293b; font-size: 1rem; margin-bottom: 30px;">
+                            The server has received your payment receipt. <br>
+                            We will contact you shortly to confirm the express delivery.
                         </p>
-                        <button onclick="window.location.href='index.html'" style="margin-top: 30px; background: #065f46; width: auto; padding: 15px 45px; border-radius:15px; border:none; color:white; font-weight:700; cursor:pointer;">
-                           <i class="fas fa-home"></i> Return to Store
+                        <button onclick="window.location.href='index.html'" style="margin-top: 10px; background: #065f46; width: auto; padding: 15px 50px; border-radius:15px; border:none; color:white; font-weight:800; cursor:pointer;">
+                           <i class="fas fa-home"></i> Back to Store
                         </button>
                     </div>`;
             }
+            // Hide the redundant checkout box and headers
             if(document.getElementById('checkout-box')) document.getElementById('checkout-box').style.display = 'none';
             if(document.getElementById('page-header')) document.getElementById('page-header').style.display = 'none';
 
             window.showToast("🚀 Order Success!", "success");
         }
-    } catch (err) { window.showToast("Connection issue.", "error"); }
+    } catch (err) { window.showToast("Server connection error. Check your internet.", "error"); }
 }
 
 // --- 6. ADMIN TOOLS ---
 window.adminDeleteProduct = async (id, btn) => {
     if (btn.innerText === "Confirm?") {
         const res = await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' });
-        if (res.ok) { window.showToast("✅ Deleted", "success"); setTimeout(() => location.reload(), 1000); }
+        if (res.ok) { window.showToast("✅ Deleted Forever", "success"); setTimeout(() => location.reload(), 1000); }
     } else {
         btn.innerText = "Confirm?"; btn.style.background = "black";
         setTimeout(() => { if (btn) { btn.innerText = "Delete"; btn.style.background = "#ef4444"; } }, 3000);
@@ -300,7 +305,7 @@ window.adminDeleteProduct = async (id, btn) => {
 window.deleteOrder = async (id, btn) => {
     if (btn.innerText.includes("Confirm")) {
         const res = await fetch(`${API_URL}/orders/${id}`, { method: 'DELETE' });
-        if(res.ok) { window.showToast("Order removed.", "success"); setTimeout(() => location.reload(), 1000); }
+        if(res.ok) { window.showToast("Order entry removed.", "success"); setTimeout(() => location.reload(), 1000); }
     } else {
         btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Confirm?';
         btn.style.background = "#000";
@@ -315,9 +320,7 @@ window.fetchAdminData = async function() {
         const orderContainer = document.getElementById('admin-orders');
         if (orderContainer) {
             orderContainer.innerHTML = orders.map(o => {
-                // Cloudinary URL logic: no BASE_URL prefix if link starts with http
                 const imgSource = o.paymentScreenshot.startsWith('http') ? o.paymentScreenshot : `${BASE_URL}/uploads/${o.paymentScreenshot}`;
-                
                 return `
                 <div class="card" style="text-align: left; border-left: 6px solid #10b981; margin-bottom: 20px; padding: 25px;">
                     <h4 style="margin:0;"><i class="fas fa-user"></i> ${o.customer.name}</h4>
